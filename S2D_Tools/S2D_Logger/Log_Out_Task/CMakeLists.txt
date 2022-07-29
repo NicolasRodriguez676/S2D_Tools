@@ -1,0 +1,1 @@
+target_sources(${MY_APP_NAME} PUBLIC Logs_Out.c Logs_Out.h)

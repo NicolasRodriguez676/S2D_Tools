@@ -1,0 +1,1 @@
+target_sources(${MY_APP_NAME} PUBLIC adc1.c  adc1.h)

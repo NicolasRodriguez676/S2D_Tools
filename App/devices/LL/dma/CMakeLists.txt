@@ -1,0 +1,1 @@
+target_sources(${MY_APP_NAME} PUBLIC dma.c dma.h)

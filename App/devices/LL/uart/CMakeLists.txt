@@ -1,0 +1,1 @@
+target_sources(${MY_APP_NAME} PUBLIC uart5.c  uart5.h)

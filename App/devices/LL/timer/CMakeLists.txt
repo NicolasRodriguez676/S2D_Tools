@@ -1,0 +1,1 @@
+target_sources(${MY_APP_NAME} PUBLIC timer2.c  timer2.h timer1.c timer1.h)
