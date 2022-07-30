@@ -22,7 +22,7 @@ enum S2D_Buffer_Len_Min
 s2d_out_s s2dout;
 
 // Private Internal Definitions
-static uint32_t g_s2d_log_level_internal;
+static int32_t g_s2d_log_level_internal;
 static const char* g_s2d_log_level_color[4] = { "\n\x1b[31m", "\n\x1b[33m", "\n\x1b[32m", "\n\x1b[36m" };
 
 void s2d_init_log()
