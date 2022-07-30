@@ -1,12 +1,11 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <stdbool.h>
-#include <stdatomic.h>
+#include <string.h>
 
 #include <FreeRTOS.h>
 #include <task.h>
 #include <semphr.h>
-#include <string.h>
 
 #include "S2D_Log.h"
 
@@ -14,17 +13,17 @@
 
 enum S2D_Buffer_Len_Min
 {
-    // number of bytes for newline\return and color sequences
-    // this also includes the buffer select value
-    BUF_MIN_LEN = 28
+    // number of bytes for newline + ansi color = 8
+    // s2d tag = 5
+    BUF_MIN_LEN = 13
 };
 
 // Public Internal Definitions
 s2d_out_s s2dout;
 
 // Private Internal Definitions
-static atomic_int g_s2d_log_level_internal;
-static const char* g_s2d_log_level_color[4] = { "\x1b[31m", "\x1b[33m", "\x1b[36m", "\x1b[32m" };
+static uint32_t g_s2d_log_level_internal;
+static const char* g_s2d_log_level_color[4] = { "\n\x1b[31m", "\n\x1b[33m", "\n\x1b[32m", "\n\x1b[36m" };
 
 void s2d_init_log()
 {
@@ -38,13 +37,15 @@ void s2d_init_log()
     S2D_DMA_INIT(s2dout.buffer_one, s2dout.buffer_two);
     S2D_UART_INIT(S2D_UART_BAUD_RATE);
 
-    xTaskCreate(logs_out, "logs_out", configMINIMAL_STACK_SIZE * 4, NULL, tskIDLE_PRIORITY + 10, &s2dout.log_out_handle);
+    xTaskCreate(logs_out, "logs_out", configMINIMAL_STACK_SIZE * 4, NULL, tskIDLE_PRIORITY + S2D_TASK_PRIORITY, &s2dout.log_out_handle);
     S2D_GIVE_OUT_TASK_HANDLE(&s2dout.log_out_handle);
 }
 
 void s2d_set_log_level(uint32_t level)
 {
+    xSemaphoreTake(s2dout.semaphore, portMAX_DELAY);
     g_s2d_log_level_internal = level;
+    xSemaphoreGive(s2dout.semaphore);
 }
 
 void s2d_log(uint32_t level, ...)
@@ -95,33 +96,37 @@ void s2d_log(uint32_t level, ...)
         va_start(args, level);
         const char *fmt = va_arg(args, char*);
 
-        uint32_t bytes_in_temp_buf;
+        uint32_t bytes_in_temp_buf = vsnprintf((char *) s2dout.buffer_temp, S2D_OUT_BUFFER_TEMP_SIZE, fmt, args);
+        va_end(args);
 
-        bytes_in_temp_buf = vsnprintf((char *) s2dout.buffer_temp, S2D_OUT_HALF_BUFFER_SIZE, fmt, args);
-
-        // check if temp buffer can fit inside selected buffer
-        if (bytes_in_temp_buf <= (S2D_OUT_HALF_BUFFER_SIZE - s2dout.length) - BUF_MIN_LEN)
+        if (((int32_t)bytes_in_temp_buf < 0) || (bytes_in_temp_buf >= S2D_OUT_BUFFER_TEMP_SIZE))
         {
-            s2dout.length += snprintf((char *) s2dout.buffer + s2dout.length, S2D_OUT_HALF_BUFFER_SIZE - s2dout.length, "%s[%d] S2D: ", g_s2d_log_level_color[level], s2dout.buffer_select);
+            const char* msg = "%sS2D: Log message longer than temp buffer or invalid snprintf input.";
+            s2dout.length = snprintf((char *) s2dout.buffer, S2D_OUT_HALF_BUFFER_SIZE - s2dout.length, msg, g_s2d_log_level_color[S2D_LOG_ERROR]);
+
+            xTaskNotifyGive(s2dout.log_out_handle);
+            xSemaphoreGive(s2dout.semaphore);
+
+            return;
+        }
+
+        if ((bytes_in_temp_buf + BUF_MIN_LEN) <= (S2D_OUT_HALF_BUFFER_SIZE - s2dout.length))
+        {
+            s2dout.length += snprintf((char *) s2dout.buffer + s2dout.length, S2D_OUT_HALF_BUFFER_SIZE - s2dout.length, "%sS2D: ", g_s2d_log_level_color[level]);
 
             memcpy(s2dout.buffer + s2dout.length, s2dout.buffer_temp, bytes_in_temp_buf);
 
             s2dout.length += bytes_in_temp_buf;
-            s2dout.length += snprintf((char *) s2dout.buffer + s2dout.length, S2D_OUT_HALF_BUFFER_SIZE - s2dout.length, "\x1b[0m\n\r");
+
+            if (s2dout.length >= (S2D_OUT_HALF_BUFFER_SIZE - (S2D_OUT_BUFFER_TEMP_SIZE + BUF_MIN_LEN)))
+                xTaskNotifyGive(s2dout.log_out_handle);
         }
         else
         {
-            // i would want to use the task to print the data in the temp buffer immediately or lose the data
-            // at least i can lose one log by notifying the task that the buffer is full so that the next
-            // log will succeed.
-            // maybe add something to the next log that will indicate that one was missed.
-
+            // TODO: Determine which log messages were missed
             xTaskNotifyGive(s2dout.log_out_handle);
         }
-
-        va_end(args);
     }
 
     xSemaphoreGive(s2dout.semaphore);
 }
-

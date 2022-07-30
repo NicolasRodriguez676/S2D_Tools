@@ -25,17 +25,23 @@ void logs_out()
 
     for (;;)
     {
-        xTaskNotifyWait(0, 0, &notify_value, S2D_TASK_OUT_WAIT);
+        xTaskNotifyWait(UINT32_MAX, 0, &notify_value, pdMS_TO_TICKS(S2D_TASK_OUT_WAIT));
 
         if (notify_value & S2D_NOTIFY_DMA_BUSY_FLAG)
+        {
             dma_busy = false;
+            continue;
+        }
 
         xSemaphoreTake(s2dout.semaphore, portMAX_DELAY);
 
         if (s2dout.length > 0)
         {
+            if (s2dout.buffer_select == S2D_BUFFER_ONE)
+                __asm("NOP");
+
             if (dma_busy == true)
-                xTaskNotifyWait(0, 0, &notify_value, S2D_DMA_BUSY_WAIT);
+                xTaskNotifyWait(0, 0, &notify_value, pdMS_TO_TICKS(S2D_DMA_BUSY_WAIT));
 
             S2D_DMA_START(s2dout.length);
             dma_busy = true;
