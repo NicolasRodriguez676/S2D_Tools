@@ -38,8 +38,6 @@ void DMA1_Stream7_IRQHandler()
     LL_DMA_ClearFlag_TC7(DMA1);
     LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_7);
 
-    BaseType_t higher_priority_woken = pdFALSE;
     uint32_t prev_notify;
-
-    xTaskGenericNotifyFromISR(*s2d_out_handle, S2D_NOTIFY_DMA_BUSY_FLAG, eSetBits, &prev_notify, &higher_priority_woken);
+    xTaskGenericNotifyFromISR(*s2d_out_handle, S2D_NOTIFY_DMA_BUSY_FLAG, eSetBits, &prev_notify, NULL);
 }
