@@ -10,7 +10,7 @@
 #include "S2D_Tools/S2D_Log.h"
 #include "blinky/blinky.h"
 
-int main(void)
+int main()
 {
     SystemClock_Config();
 
@@ -18,8 +18,7 @@ int main(void)
 
     initLED();
 
-    s2d_init_log();
-    S2D_DEBUG("Hello from Main, I sure hope my Tasks are made!");
+    S2D_LOG_INIT();
 
     xTaskCreate(blinky, "blinky", configMINIMAL_STACK_SIZE * 4, NULL, tskIDLE_PRIORITY + 1, NULL);
 
