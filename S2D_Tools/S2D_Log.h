@@ -10,6 +10,28 @@
 #include "S2D_Logger/Log_Out_Task/Logs_Out.h"
 #include "S2D_Logger/Logger/Logger.h"
 
+#if !defined S2D_DMA_INIT && !defined S2D_DMA_START
+#error "Error: Missing DMA init and start defintions."
+#endif
+
+#ifndef S2D_UART_INIT
+#error "Error: Missing UART init definition."
+#endif
+
+#ifndef S2D_DISABLE_TIME_LOGGING
+#if !defined S2D_TIMER_INIT
+#error "Error: Missing TIMER init defintion."
+#endif
+
+#if !defined S2D_GET_COUNT && !defined S2D_RESET_COUNT
+#error "Error: Missing GET COUNT and RESET COUNT defintions."
+#endif
+
+#if !defined S2D_ENABLE_COUNT && !defined S2D_DISABLE_COUNT
+#error "Error: Missing ENABLE COUNT and DISABLE COUNT defintions."
+#endif
+#endif
+
 #define S2D_LOG_NONE     -1
 #define S2D_LOG_INFO      4
 #define S2D_LOG_DEBUG     3
