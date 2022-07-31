@@ -79,7 +79,7 @@
 #define S2D_DMA_BUSY_WAIT (uint32_t)(S2D_OUT_HALF_BUFFER_SIZE)*((1/(float)S2D_UART_BAUD_RATE)*(10))
 #endif
 
-#ifdef S2D_LOG_DISABLED
+#ifdef S2D_DISABLE_LOG
 #define S2D_SET_LEVEL_INFO()        {}
 #define S2D_SET_LEVEL_DEBUG()       {}
 #define S2D_SET_LEVEL_WARN()        {}
