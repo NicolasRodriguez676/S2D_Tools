@@ -11,10 +11,10 @@ extern s2d_out_s s2dout;
 // Task to swap buffers and initiate DMA writing to UART
 // S2D_TASK_OUT_WAIT -> wait for possible logs in selected buffer.
 // can be ended early if selected buffer is almost full
-// check if DMA is still busy from previous start
+// check if DMA is still busy from previous s2d_start
 // take control of s2dout
 // if DMA is busy, wait maximum amount of time (buffer size * (1/baud rate) * 10)
-// start DMA and set it to busy
+// s2d_start DMA and set it to busy
 // swap buffers
 // release semaphore
 

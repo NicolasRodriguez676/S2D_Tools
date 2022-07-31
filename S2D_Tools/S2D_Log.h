@@ -11,8 +11,9 @@
 #include "S2D_Logger/Logger/Logger.h"
 
 #define S2D_LOG_NONE     -1
-#define S2D_LOG_INFO      3
-#define S2D_LOG_DEBUG     2
+#define S2D_LOG_INFO      4
+#define S2D_LOG_DEBUG     3
+#define S2D_LOG_TIME      2
 #define S2D_LOG_WARN      1
 #define S2D_LOG_ERROR     0
 
@@ -66,6 +67,20 @@
 #define S2D_DEBUG(...)              s2d_log(S2D_LOG_DEBUG, __VA_ARGS__)
 #define S2D_WARN(...)               s2d_log(S2D_LOG_WARN,  __VA_ARGS__)
 #define S2D_ERROR(...)              s2d_log(S2D_LOG_ERROR, __VA_ARGS__)
+#endif
+
+
+#ifdef S2D_LOG_DISABLED
+#define S2D_TIME_START()            {}
+#define S2D_TIME_STOP(...)          {}
+#else
+#define S2D_TIME_START()            S2D_COUNT_ENABLE()
+#define S2D_TIME_STOP()             do                                                                           \
+                                    {                                                                            \
+                                        S2D_COUNT_DISABLE();                                                     \
+                                        s2d_log(S2D_LOG_TIME, "time=%.1fus", ((float)(S2D_GET_COUNT())*(1E-1))); \
+                                        S2D_COUNT_RESET();                                                       \
+                                    } while (false)
 #endif
 
 enum S2D_Buffer_Names

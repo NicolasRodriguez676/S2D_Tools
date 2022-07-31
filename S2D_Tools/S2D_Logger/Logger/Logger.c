@@ -23,7 +23,7 @@ s2d_out_s s2dout;
 
 // Private Internal Definitions
 static int32_t g_s2d_log_level_internal;
-static const char* g_s2d_log_level_color[4] = { "\n\x1b[31m", "\n\x1b[33m", "\n\x1b[32m", "\n\x1b[36m" };
+static const char* g_s2d_log_level_color[5] = { "\n\x1b[31m", "\n\x1b[33m", "\n\x1b[35m", "\n\x1b[32m", "\n\x1b[36m" };
 
 void s2d_init_log()
 {
@@ -37,11 +37,13 @@ void s2d_init_log()
     S2D_DMA_INIT(s2dout.buffer_one, s2dout.buffer_two);
     S2D_UART_INIT(S2D_UART_BAUD_RATE);
 
+    S2D_TIMER_INIT();
+
     xTaskCreate(logs_out, "logs_out", configMINIMAL_STACK_SIZE * 4, NULL, tskIDLE_PRIORITY + S2D_TASK_PRIORITY, &s2dout.log_out_handle);
     S2D_GIVE_OUT_TASK_HANDLE(&s2dout.log_out_handle);
 }
 
-void s2d_set_log_level(uint32_t level)
+void s2d_set_log_level(int32_t level)
 {
     xSemaphoreTake(s2dout.semaphore, portMAX_DELAY);
     g_s2d_log_level_internal = level;
@@ -62,14 +64,20 @@ void s2d_log(uint32_t level, ...)
 
     switch(level)
     {
+        case S2D_LOG_INFO:
+            if ((g_s2d_log_level_internal >= S2D_LOG_INFO) == true)
+                level_denied = false;
+
+            break;
+
         case S2D_LOG_DEBUG:
             if ((g_s2d_log_level_internal >= S2D_LOG_DEBUG) == true)
                 level_denied = false;
 
             break;
 
-        case S2D_LOG_INFO:
-            if ((g_s2d_log_level_internal >= S2D_LOG_INFO) == true)
+        case S2D_LOG_TIME:
+            if ((g_s2d_log_level_internal >= S2D_LOG_TIME) == true)
                 level_denied = false;
 
             break;

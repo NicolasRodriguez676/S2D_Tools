@@ -4,15 +4,19 @@
 #include "gpio/led.h"
 #include "S2D_Log.h"
 
+uint32_t s2d_time = 0;
+
 void blinky()
 {
-    S2D_WARN("Initialize Blinky Task!");
+    S2D_INFO("Initialize Blinky Task!");
 
     for(;;)
 	{
-        S2D_ERROR("Printing a really long message to trigger a skipped log message. And this one still needs to be even longer! I made it! I made it!");
-
         vTaskDelay(1500);
         LL_GPIO_TogglePin(LED_PORT, LED_PIN);
+
+        S2D_TIME_START();
+        LL_GPIO_TogglePin(LED_PORT, LED_PIN);
+        S2D_TIME_STOP();
 	}
 }

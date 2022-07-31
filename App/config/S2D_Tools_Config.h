@@ -3,11 +3,18 @@
 
 #include "dma/dma.h"
 #include "uart/uart5.h"
+#include "timer/timer2.h"
 
 #define S2D_DMA_INIT(b1, b2)        init_dma1(b1, b2)
 #define S2D_DMA_START(len)          start_dma1(len)
 
 #define S2D_UART_INIT(br)           init_uart5(br)
+
+#define S2D_TIMER_INIT()            init_timer2()
+#define S2D_GET_COUNT()             LL_TIM_GetCounter(TIM2)
+#define S2D_COUNT_ENABLE()          LL_TIM_EnableCounter(TIM2)
+#define S2D_COUNT_DISABLE()         LL_TIM_DisableCounter(TIM2)
+#define S2D_COUNT_RESET()           LL_TIM_WriteReg(TIM2, CNT, 0)
 
 #define S2D_GIVE_OUT_TASK_HANDLE(h) get_task_handle(h)
 #define S2D_OUT_BUFFER_SIZE         1024
