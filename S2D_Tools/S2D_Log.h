@@ -97,18 +97,18 @@
 #define S2D_ERROR(...)         s2d_log(S2D_LOG_ERROR, __VA_ARGS__)
 #endif
 
-
-#ifdef S2D_LOG_DISABLED
+#if defined S2D_LOG_DISABLED || defined S2D_DISABLE_TIME_LOGGING
 #define S2D_TIME_START()            {}
 #define S2D_TIME_STOP(...)          {}
 #else
-#define S2D_TIME_START()            S2D_COUNT_ENABLE()
-#define S2D_TIME_STOP()             do                                                                           \
-                                    {                                                                            \
-                                        S2D_COUNT_DISABLE();                                                     \
-                                        s2d_log(S2D_LOG_TIME, "time=%.1fus", ((float)(S2D_GET_COUNT())*(1E-1))); \
-                                        S2D_COUNT_RESET();                                                       \
-                                    } while (false)
+// S2D time resolution assumed 100ns
+#define S2D_TIME_START()   S2D_ENABLE_COUNT()
+#define S2D_TIME_STOP()    do                                                                           \
+                           {                                                                            \
+                               S2D_DISABLE_COUNT();                                                     \
+                               s2d_log(S2D_LOG_TIME, "time=%.1fus", ((float)(S2D_GET_COUNT())*(1E-1))); \
+                               S2D_RESET_COUNT();                                                       \
+                           } while (false)
 #endif
 
 enum S2D_Buffer_Names
