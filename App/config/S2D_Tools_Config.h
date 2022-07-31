@@ -12,9 +12,9 @@
 
 #define S2D_TIMER_INIT()            init_timer2()
 #define S2D_GET_COUNT()             LL_TIM_GetCounter(TIM2)
-#define S2D_COUNT_ENABLE()          LL_TIM_EnableCounter(TIM2)
-#define S2D_COUNT_DISABLE()         LL_TIM_DisableCounter(TIM2)
-#define S2D_COUNT_RESET()           LL_TIM_WriteReg(TIM2, CNT, 0)
+#define S2D_ENABLE_COUNT()          LL_TIM_EnableCounter(TIM2)
+#define S2D_DISABLE_COUNT()         LL_TIM_DisableCounter(TIM2)
+#define S2D_RESET_COUNT()           LL_TIM_WriteReg(TIM2, CNT, 0)
 
 #define S2D_GIVE_OUT_TASK_HANDLE(h) get_task_handle(h)
 #define S2D_OUT_BUFFER_SIZE         1024

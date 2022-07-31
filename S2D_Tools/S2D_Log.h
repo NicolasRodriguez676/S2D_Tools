@@ -54,6 +54,10 @@
 #endif
 
 #ifdef S2D_LOG_DISABLED
+#define S2D_SET_LEVEL_INFO()        {}
+#define S2D_SET_LEVEL_DEBUG()       {}
+#define S2D_SET_LEVEL_WARN()        {}
+#define S2D_SET_LEVEL_ERROR()       {}
 #define S2D_LOG_INIT()              {}
 #define S2D_LOG_LEVEL_SET(level)    {}
 #define S2D_INFO(...)               {}
@@ -61,12 +65,15 @@
 #define S2D_WARN(...)               {}
 #define S2D_ERROR(...)              {}
 #else
-#define S2D_LOG_INIT()              s2d_init_log()
-#define S2D_LOG_LEVEL_SET(level)    s2d_set_log_level(level)
-#define S2D_INFO(...)               s2d_log(S2D_LOG_INFO,  __VA_ARGS__)
-#define S2D_DEBUG(...)              s2d_log(S2D_LOG_DEBUG, __VA_ARGS__)
-#define S2D_WARN(...)               s2d_log(S2D_LOG_WARN,  __VA_ARGS__)
-#define S2D_ERROR(...)              s2d_log(S2D_LOG_ERROR, __VA_ARGS__)
+#define S2D_SET_LEVEL_INFO()   s2d_set_log_level(S2D_LOG_INFO)
+#define S2D_SET_LEVEL_DEBUG()  s2d_set_log_level(S2D_LOG_DEBUG)
+#define S2D_SET_LEVEL_WARN()   s2d_set_log_level(S2D_LOG_WARN)
+#define S2D_SET_LEVEL_ERROR()  s2d_set_log_level(S2D_LOG_ERROR)
+#define S2D_LOG_INIT()         s2d_init_log()
+#define S2D_INFO(...)          s2d_log(S2D_LOG_INFO,  __VA_ARGS__)
+#define S2D_DEBUG(...)         s2d_log(S2D_LOG_DEBUG, __VA_ARGS__)
+#define S2D_WARN(...)          s2d_log(S2D_LOG_WARN,  __VA_ARGS__)
+#define S2D_ERROR(...)         s2d_log(S2D_LOG_ERROR, __VA_ARGS__)
 #endif
 
 
