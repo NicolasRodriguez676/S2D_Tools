@@ -81,7 +81,6 @@
 #define S2D_SET_LEVEL_WARN()        {}
 #define S2D_SET_LEVEL_ERROR()       {}
 #define S2D_LOG_INIT()              {}
-#define S2D_LOG_LEVEL_SET(level)    {}
 #define S2D_INFO(...)               {}
 #define S2D_DEBUG(...)              {}
 #define S2D_WARN(...)               {}
