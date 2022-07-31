@@ -17,6 +17,5 @@
 #define S2D_RESET_COUNT()           LL_TIM_WriteReg(TIM2, CNT, 0)
 
 #define S2D_GIVE_OUT_TASK_HANDLE(h) get_task_handle(h)
-#define S2D_OUT_BUFFER_SIZE         1024
 
 #endif //APP_S2D_TOOLS_S2D_TOOLS_CONFIG_H
