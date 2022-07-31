@@ -10,6 +10,10 @@
 #include "S2D_Logger/Log_Out_Task/Logs_Out.h"
 #include "S2D_Logger/Logger/Logger.h"
 
+#ifndef S2D_GIVE_OUT_TASK_HANDLE
+#error "Error: Missing GIVE TASK HANDLE definition."
+#endif
+
 #if !defined S2D_DMA_INIT && !defined S2D_DMA_START
 #error "Error: Missing DMA init and start defintions."
 #endif
