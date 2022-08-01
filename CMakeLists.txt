@@ -7,6 +7,8 @@ endif()
 set(CMAKE_MODULE_PATH  $ENV{CMAKE_STM32_SCRIPTS})
 set(CMAKE_TOOLCHAIN_FILE $ENV{CMAKE_STM32_SCRIPTS}/stm32_gcc.cmake)
 
+option(USE_S2D_LOG "Turn on S2D Log" ON)
+
 project(APP_S2D_TOOLS C ASM)
 set(MY_APP_NAME APP)
 
@@ -27,6 +29,10 @@ add_compile_options(
         -Wno-unused-parameter
         -Wpedantic
         )
+
+if (${USE_S2D_LOG})
+    add_compile_definitions(${MY_APP_NAME} PUBLIC S2D_DISABLE_LOG)
+endif()
 
 add_executable(${MY_APP_NAME})
 
