@@ -30,7 +30,7 @@ add_compile_options(
         -Wpedantic
         )
 
-if (${USE_S2D_LOG})
+if (NOT ${USE_S2D_LOG})
     add_compile_definitions(${MY_APP_NAME} PUBLIC S2D_DISABLE_LOG)
 endif()
 
@@ -38,7 +38,9 @@ add_executable(${MY_APP_NAME})
 
 add_subdirectory(printf)
 add_subdirectory(App)
+
 add_subdirectory(S2D_Tools/S2D_Logger)
+add_subdirectory(S2D_Tools/S2D_File_Transfer)
 
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 

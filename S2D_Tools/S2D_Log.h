@@ -10,15 +10,15 @@
 #include "S2D_Logger/Log_Out_Task/Logs_Out.h"
 #include "S2D_Logger/Logger/Logger.h"
 
-#ifndef S2D_GIVE_OUT_TASK_HANDLE
+#ifndef S2D_LOG_OUT_TASK_HANDLE
 #error "Error: Missing GIVE TASK HANDLE definition."
 #endif
 
-#if !defined S2D_DMA_INIT && !defined S2D_DMA_START
+#if !defined S2D_LOG_DMA_INIT && !defined S2D_LOG_DMA_START
 #error "Error: Missing DMA init and start defintions."
 #endif
 
-#ifndef S2D_UART_INIT
+#ifndef S2D_LOG_UART_INIT
 #error "Error: Missing UART init definition."
 #endif
 
@@ -43,40 +43,40 @@
 #define S2D_LOG_WARN      1
 #define S2D_LOG_ERROR     0
 
-#ifndef S2D_TASK_OUT_WAIT
-#define S2D_TASK_OUT_WAIT 1000
+#ifndef S2D_LOG_OUT_TASK_WAIT
+#define S2D_LOG_OUT_TASK_WAIT 1000
 #endif
 
-#ifndef S2D_TASK_PRIORITY
-#define S2D_TASK_PRIORITY 10
+#ifndef S2D_LOG_OUT_TASK_PRIORITY
+#define S2D_LOG_OUT_TASK_PRIORITY 10
 #endif
 
-#ifndef S2D_NOTIFY_DMA_BUSY_FLAG
-#define S2D_NOTIFY_DMA_BUSY_FLAG 0x80000000
+#ifndef S2D_LOG_NOTIFY_DMA_BUSY_FLAG
+#define S2D_LOG_NOTIFY_DMA_BUSY_FLAG 0x80000000
 #endif
 
-#ifndef S2D_OUT_BUFFER_SIZE
-#define S2D_OUT_BUFFER_SIZE 1024
+#ifndef S2D_LOG_BUFFER_SIZE
+#define S2D_LOG_BUFFER_SIZE 1024
 #endif
 
-#ifdef S2D_OUT_HALF_BUFFER_SIZE
+#ifdef S2D_LOG_HALF_BUFFER_SIZE
 #error "Error: Half buffer size defined internally!"
 #else
-#define S2D_OUT_HALF_BUFFER_SIZE (S2D_OUT_BUFFER_SIZE / 2)
+#define S2D_LOG_HALF_BUFFER_SIZE (S2D_LOG_BUFFER_SIZE / 2)
 #endif
 
-#ifndef S2D_OUT_BUFFER_TEMP_SIZE
-#define S2D_OUT_BUFFER_TEMP_SIZE 192
+#ifndef S2D_LOG_BUFFER_TEMP_SIZE
+#define S2D_LOG_BUFFER_TEMP_SIZE 192
 #endif
 
-#ifndef S2D_UART_BAUD_RATE
-#define S2D_UART_BAUD_RATE  115200
+#ifndef S2D_LOG_UART_BAUD_RATE
+#define S2D_LOG_UART_BAUD_RATE  115200
 #endif
 
-#ifdef S2D_DMA_BUSY_WAIT
+#ifdef S2D_LOG_DMA_BUSY_WAIT
 #error "Error: Busy wait time calculated internally!"
 #else
-#define S2D_DMA_BUSY_WAIT (uint32_t)(S2D_OUT_HALF_BUFFER_SIZE)*((1/(float)S2D_UART_BAUD_RATE)*(10))
+#define S2D_LOG_DMA_BUSY_WAIT (uint32_t)(S2D_LOG_HALF_BUFFER_SIZE)*((1/(float)S2D_LOG_UART_BAUD_RATE)*(10))
 #endif
 
 #ifdef S2D_DISABLE_LOG
@@ -101,7 +101,7 @@
 #define S2D_ERROR(...)         s2d_log(S2D_LOG_ERROR, __VA_ARGS__)
 #endif
 
-#if defined S2D_LOG_DISABLED || defined S2D_DISABLE_TIME_LOGGING
+#if defined S2D_DISABLE_LOG || defined S2D_DISABLE_TIME_LOGGING
 #define S2D_TIME_START()            {}
 #define S2D_TIME_STOP(...)          {}
 #else
@@ -126,10 +126,10 @@ typedef struct S2D_Buffer_Out {
     uint32_t length;
 
     uint32_t buffer_select;
-    uint8_t buffer_one[S2D_OUT_HALF_BUFFER_SIZE];
-    uint8_t buffer_two[S2D_OUT_HALF_BUFFER_SIZE];
+    uint8_t buffer_one[S2D_LOG_HALF_BUFFER_SIZE];
+    uint8_t buffer_two[S2D_LOG_HALF_BUFFER_SIZE];
 
-    uint8_t buffer_temp[S2D_OUT_BUFFER_TEMP_SIZE];
+    uint8_t buffer_temp[S2D_LOG_BUFFER_TEMP_SIZE];
 
     TaskHandle_t log_out_handle;
     SemaphoreHandle_t semaphore;

@@ -34,13 +34,13 @@ void s2d_init_log()
 
     g_s2d_log_level_internal = S2D_LOG_DEBUG;
 
-    S2D_DMA_INIT(s2dout.buffer_one, s2dout.buffer_two);
-    S2D_UART_INIT(S2D_UART_BAUD_RATE);
+    S2D_LOG_DMA_INIT(s2dout.buffer_one, s2dout.buffer_two);
+    S2D_LOG_UART_INIT(S2D_LOG_UART_BAUD_RATE);
 
     S2D_TIMER_INIT();
 
-    xTaskCreate(logs_out, "logs_out", configMINIMAL_STACK_SIZE * 4, NULL, tskIDLE_PRIORITY + S2D_TASK_PRIORITY, &s2dout.log_out_handle);
-    S2D_GIVE_OUT_TASK_HANDLE(&s2dout.log_out_handle);
+    xTaskCreate(logs_out, "logs_out", configMINIMAL_STACK_SIZE * 4, NULL, tskIDLE_PRIORITY + S2D_LOG_OUT_TASK_PRIORITY, &s2dout.log_out_handle);
+    S2D_LOG_OUT_TASK_HANDLE(&s2dout.log_out_handle);
 }
 
 void s2d_set_log_level(int32_t level)
@@ -104,13 +104,13 @@ void s2d_log(uint32_t level, ...)
         va_start(args, level);
         const char *fmt = va_arg(args, char*);
 
-        uint32_t bytes_in_temp_buf = vsnprintf((char *) s2dout.buffer_temp, S2D_OUT_BUFFER_TEMP_SIZE, fmt, args);
+        uint32_t bytes_in_temp_buf = vsnprintf((char *) s2dout.buffer_temp, S2D_LOG_BUFFER_TEMP_SIZE, fmt, args);
         va_end(args);
 
-        if (((int32_t)bytes_in_temp_buf < 0) || (bytes_in_temp_buf >= S2D_OUT_BUFFER_TEMP_SIZE))
+        if (((int32_t)bytes_in_temp_buf < 0) || (bytes_in_temp_buf >= S2D_LOG_BUFFER_TEMP_SIZE))
         {
             const char* msg = "%sS2D: Log message longer than temp buffer or invalid snprintf input.";
-            s2dout.length = snprintf((char *) s2dout.buffer, S2D_OUT_HALF_BUFFER_SIZE - s2dout.length, msg, g_s2d_log_level_color[S2D_LOG_ERROR]);
+            s2dout.length = snprintf((char *) s2dout.buffer, S2D_LOG_HALF_BUFFER_SIZE - s2dout.length, msg, g_s2d_log_level_color[S2D_LOG_ERROR]);
 
             xTaskNotifyGive(s2dout.log_out_handle);
             xSemaphoreGive(s2dout.semaphore);
@@ -118,15 +118,15 @@ void s2d_log(uint32_t level, ...)
             return;
         }
 
-        if ((bytes_in_temp_buf + BUF_MIN_LEN) <= (S2D_OUT_HALF_BUFFER_SIZE - s2dout.length))
+        if ((bytes_in_temp_buf + BUF_MIN_LEN) <= (S2D_LOG_HALF_BUFFER_SIZE - s2dout.length))
         {
-            s2dout.length += snprintf((char *) s2dout.buffer + s2dout.length, S2D_OUT_HALF_BUFFER_SIZE - s2dout.length, "%sS2D: ", g_s2d_log_level_color[level]);
+            s2dout.length += snprintf((char *) s2dout.buffer + s2dout.length, S2D_LOG_HALF_BUFFER_SIZE - s2dout.length, "%sS2D: ", g_s2d_log_level_color[level]);
 
             memcpy(s2dout.buffer + s2dout.length, s2dout.buffer_temp, bytes_in_temp_buf);
 
             s2dout.length += bytes_in_temp_buf;
 
-            if (s2dout.length >= (S2D_OUT_HALF_BUFFER_SIZE - (S2D_OUT_BUFFER_TEMP_SIZE + BUF_MIN_LEN)))
+            if (s2dout.length >= (S2D_LOG_HALF_BUFFER_SIZE - (S2D_LOG_BUFFER_TEMP_SIZE + BUF_MIN_LEN)))
                 xTaskNotifyGive(s2dout.log_out_handle);
         }
         else

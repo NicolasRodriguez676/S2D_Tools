@@ -4,15 +4,13 @@
 #include "gpio/led.h"
 #include "S2D_Log.h"
 
-uint32_t s2d_time = 0;
-
 void blinky()
 {
     S2D_INFO("Initialize Blinky Task!");
 
     for(;;)
 	{
-        vTaskDelay(1500);
+        vTaskDelay(pdMS_TO_TICKS(1500));
         LL_GPIO_TogglePin(LED_PORT, LED_PIN);
 
         S2D_TIME_START();
