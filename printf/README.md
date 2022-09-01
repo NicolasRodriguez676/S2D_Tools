@@ -53,16 +53,16 @@ void _putchar(char character)
 Usage is 1:1 like the according stdio.h library version:
 ```C
 int printf(const char* format, ...);
-int sprintf(char* buffer, const char* format, ...);
-int snprintf(char* buffer, size_t count, const char* format, ...);
-int vsnprintf(char* buffer, size_t count, const char* format, va_list va);
+int sprintf(char* data_buffer, const char* format, ...);
+int snprintf(char* data_buffer, size_t count, const char* format, ...);
+int vsnprintf(char* data_buffer, size_t count, const char* format, va_list va);
 
-// use output function (instead of buffer) for streamlike interface
+// use output function (instead of data_buffer) for streamlike interface
 int fctprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...);
 ```
 
-**Due to general security reasons it is highly recommended to prefer and use `snprintf` (with the max buffer size as `count` parameter) instead of `sprintf`.**
-`sprintf` has no buffer limitation, so when needed - use it really with care!
+**Due to general security reasons it is highly recommended to prefer and use `snprintf` (with the max data_buffer size as `count` parameter) instead of `sprintf`.**
+`sprintf` has no data_buffer limitation, so when needed - use it really with care!
 
 ### Streamlike Usage
 Besides the regular standard `printf()` functions, this module also provides `fctprintf()`, which takes an output function as first parameter to build a streamlike output like `fprintf()`:
@@ -158,7 +158,7 @@ Notice that a value equal or larger than `count` indicates a truncation. Only wh
 the string has been completely written.
 If any error is encountered, `-1` is returned.
 
-If `buffer` is set to `NULL` (`nullptr`) nothing is written and just the formatted length is returned.
+If `data_buffer` is set to `NULL` (`nullptr`) nothing is written and just the formatted length is returned.
 ```C
 int length = sprintf(NULL, "Hello, world"); // length is set to 12
 ```
@@ -169,8 +169,8 @@ int length = sprintf(NULL, "Hello, world"); // length is set to 12
 | Name | Default value | Description |
 |------|---------------|-------------|
 | PRINTF_INCLUDE_CONFIG_H            | undefined | Define this as compiler switch (e.g. `gcc -DPRINTF_INCLUDE_CONFIG_H`) to include a "printf_config.h" definition file |
-| PRINTF_NTOA_BUFFER_SIZE            | 32        | ntoa (integer) conversion buffer size. This must be big enough to hold one converted numeric number _including_ leading zeros, normally 32 is a sufficient value. Created on the stack |
-| PRINTF_FTOA_BUFFER_SIZE            | 32        | ftoa (float) conversion buffer size. This must be big enough to hold one converted float number _including_ leading zeros, normally 32 is a sufficient value. Created on the stack |
+| PRINTF_NTOA_BUFFER_SIZE            | 32        | ntoa (integer) conversion data_buffer size. This must be big enough to hold one converted numeric number _including_ leading zeros, normally 32 is a sufficient value. Created on the stack |
+| PRINTF_FTOA_BUFFER_SIZE            | 32        | ftoa (float) conversion data_buffer size. This must be big enough to hold one converted float number _including_ leading zeros, normally 32 is a sufficient value. Created on the stack |
 | PRINTF_DEFAULT_FLOAT_PRECISION     | 6         | Define the default floating point precision |
 | PRINTF_MAX_FLOAT                   | 1e9       | Define the largest suitable value to be printed with %f, before using exponential representation |
 | PRINTF_DISABLE_SUPPORT_FLOAT       | undefined | Define this to disable floating point (%f) support |

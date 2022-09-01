@@ -9,11 +9,11 @@ extern s2d_out_s s2dout;
 // DMA is used in double buffered mode
 
 // Task to swap buffers and initiate DMA writing to UART
-// S2D_LOG_OUT_TASK_WAIT -> wait for possible logs in selected buffer.
-// can be ended early if selected buffer is almost full
+// S2D_LOG_OUT_TASK_WAIT -> wait for possible logs in selected data_buffer.
+// can be ended early if selected data_buffer is almost full
 // check if DMA is still busy from previous s2d_start
 // take control of s2dout
-// if DMA is busy, wait maximum amount of time (buffer size * (1/baud rate) * 10)
+// if DMA is busy, wait maximum amount of time (data_buffer size * (1/baud rate) * 10)
 // s2d_start DMA and set it to busy
 // swap buffers
 // release semaphore

@@ -11,7 +11,6 @@ void blinky()
     for(;;)
 	{
         vTaskDelay(pdMS_TO_TICKS(1500));
-        LL_GPIO_TogglePin(LED_PORT, LED_PIN);
 
         S2D_TIME_START();
         LL_GPIO_TogglePin(LED_PORT, LED_PIN);

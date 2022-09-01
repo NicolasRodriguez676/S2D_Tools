@@ -12,7 +12,7 @@ option(USE_S2D_LOG "Turn on S2D Log" ON)
 project(APP_S2D_TOOLS C ASM)
 set(MY_APP_NAME APP)
 
-find_package(CMSIS COMPONENTS STM32F446RE STM32F4_M4 RTOS REQUIRED)
+find_package(CMSIS COMPONENTS STM32F446RE STM32F4_M4 RTOS DSP REQUIRED)
 find_package(HAL COMPONENTS STM32F4 LL_DMA LL_RCC LL_GPIO LL_USART LL_SPI LL_ADC LL_UTILS LL_TIM REQUIRED)
 find_package(FreeRTOS COMPONENTS ARM_CM4F STM32F4 REQUIRED)
 
@@ -29,6 +29,10 @@ add_compile_options(
         -Wno-unused-parameter
         -Wpedantic
         )
+
+add_link_options(
+        -specs=rdimon.specs
+)
 
 if (NOT ${USE_S2D_LOG})
     add_compile_definitions(${MY_APP_NAME} PUBLIC S2D_DISABLE_LOG)
@@ -56,23 +60,24 @@ target_include_directories(${MY_APP_NAME}
 
 target_link_libraries(${MY_APP_NAME}
         PUBLIC
-        CMSIS::STM32::F446RE
-        CMSIS::STM32::F4::RTOS
+            CMSIS::STM32::F446RE
+            CMSIS::STM32::F4::RTOS
+            CMSIS::STM32::F4::DSP
 
-        FreeRTOS::STM32::F4::ARM_CM4F
-        FreeRTOS::STM32::F4::Timers
-        FreeRTOS::STM32::F4::Heap::3
+            FreeRTOS::STM32::F4::ARM_CM4F
+            FreeRTOS::STM32::F4::Timers
+            FreeRTOS::STM32::F4::Heap::3
 
-        HAL::STM32::F4::LL_RCC
-        HAL::STM32::F4::LL_GPIO
-        HAL::STM32::F4::LL_USART
-        HAL::STM32::F4::LL_DMA
-        HAL::STM32::F4::LL_UTILS
-        HAL::STM32::F4::LL_TIM
+            HAL::STM32::F4::LL_RCC
+            HAL::STM32::F4::LL_GPIO
+            HAL::STM32::F4::LL_USART
+            HAL::STM32::F4::LL_DMA
+            HAL::STM32::F4::LL_UTILS
+            HAL::STM32::F4::LL_TIM
 
-        STM32::NoSys
+            STM32::NoSys
 
-        PRINTF
+            PRINTF
         )
 
 stm32_print_size_of_target(${MY_APP_NAME})

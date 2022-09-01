@@ -60,7 +60,7 @@
 #endif
 
 #ifdef S2D_LOG_HALF_BUFFER_SIZE
-#error "Error: Half buffer size defined internally!"
+#error "Error: Half data_buffer size defined internally!"
 #else
 #define S2D_LOG_HALF_BUFFER_SIZE (S2D_LOG_BUFFER_SIZE / 2)
 #endif

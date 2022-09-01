@@ -3,6 +3,9 @@
 #include <task.h>
 
 #include <stm32f4xx_ll_usart.h>
+#include <string.h>
+
+#include <arm_math.h>
 
 #include "clock/systemclock.h"
 #include "gpio/led.h"
@@ -12,8 +15,9 @@
 
 #include "blinky/blinky.h"
 
-TaskHandle_t data_task;
 extern TaskHandle_t* s2d_file_handle;
+TaskHandle_t data_task;
+
 void get_data();
 
 int main(void)
@@ -43,6 +47,12 @@ void get_data()
 {
     uint32_t notify_value;
 
+    s2d_data_packet_s packet;
+    s2d_init_packet(&packet);
+
+    S2D_DEBUG("packet_size=\"%d\"", PACKET_SIZE);
+    S2D_DEBUG("header_size=\"%d\"", HEADER_SIZE);
+
     for (;;)
     {
         xTaskNotifyWait(UINT32_MAX, 0, &notify_value, portMAX_DELAY);
@@ -50,12 +60,22 @@ void get_data()
         if (notify_value > 0)
         {
             S2D_DEBUG("Received files out notification");
+            S2D_DEBUG("samples=%d", packet.num_samples);
 
-            s2d_data_packet_s packet;
+            if (packet.num_samples == 256)
+            {
+                for (uint32_t i = 0; i < 128; ++i)
+                    packet.data[i] = arm_sin_f32(2 * PI * ((float) i / (float) 128));
 
-            packet.header1[0] = 1.0f;
+                for (uint32_t i = 128; i < 256; ++i)
+                    packet.data[i] = arm_sin_f32(2 * PI * ((float) i / (float) 128));
+            }
+            else
+            {
+                for (uint32_t i = 0; i < 128; ++i)
+                    packet.data[i] = arm_sin_f32(2 * PI * ((float) i / (float) 128));
+            }
 
-            vTaskDelay(pdMS_TO_TICKS(2500));
             vTaskResume(*s2d_file_handle);
         }
     }

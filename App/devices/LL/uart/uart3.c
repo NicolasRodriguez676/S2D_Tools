@@ -6,6 +6,9 @@
 #include <stm32f4xx_ll_dma.h>
 #include <stm32f4xx_ll_usart.h>
 
+#include "S2D_Tools/S2D_Files.h"
+
+
 TaskHandle_t* s2d_file_handle;
 
 void init_uart3(uint32_t baud_rate)
@@ -28,9 +31,22 @@ void init_uart3(uint32_t baud_rate)
     GPIO_InitStruct.Alternate   = LL_GPIO_AF_7;
     LL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+    // RX
+    LL_DMA_SetChannelSelection(DMA1, LL_DMA_STREAM_1, LL_DMA_CHANNEL_4);
+    LL_DMA_SetDataTransferDirection(DMA1, LL_DMA_STREAM_1, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+    LL_DMA_SetStreamPriorityLevel(DMA1, LL_DMA_STREAM_1, LL_DMA_PRIORITY_HIGH);
+    LL_DMA_SetMode(DMA1, LL_DMA_STREAM_1, LL_DMA_MODE_NORMAL);
+    LL_DMA_SetPeriphIncMode(DMA1, LL_DMA_STREAM_1, LL_DMA_PERIPH_NOINCREMENT);
+    LL_DMA_SetMemoryIncMode(DMA1, LL_DMA_STREAM_1, LL_DMA_MEMORY_INCREMENT);
+    LL_DMA_SetPeriphSize(DMA1, LL_DMA_STREAM_1, LL_DMA_PDATAALIGN_BYTE);
+    LL_DMA_SetMemorySize(DMA1, LL_DMA_STREAM_1, LL_DMA_MDATAALIGN_BYTE);
+    LL_DMA_DisableFifoMode(DMA1, LL_DMA_STREAM_1);
+
+    // TX
     LL_DMA_SetChannelSelection(DMA1, LL_DMA_STREAM_3, LL_DMA_CHANNEL_4);
     LL_DMA_SetDataTransferDirection(DMA1, LL_DMA_STREAM_3, LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
     LL_DMA_SetStreamPriorityLevel(DMA1, LL_DMA_STREAM_3, LL_DMA_PRIORITY_HIGH);
+    LL_DMA_SetMode(DMA1, LL_DMA_STREAM_3, LL_DMA_MODE_NORMAL);
     LL_DMA_SetPeriphIncMode(DMA1, LL_DMA_STREAM_3, LL_DMA_PERIPH_NOINCREMENT);
     LL_DMA_SetMemoryIncMode(DMA1, LL_DMA_STREAM_3, LL_DMA_MEMORY_INCREMENT);
     LL_DMA_SetPeriphSize(DMA1, LL_DMA_STREAM_3, LL_DMA_PDATAALIGN_BYTE);
@@ -52,9 +68,24 @@ void init_uart3(uint32_t baud_rate)
     LL_USART_Init(USART3, &USART_InitStruct);
 
     LL_USART_ConfigAsyncMode(USART3);
-    LL_USART_EnableIT_RXNE(USART3);
     LL_USART_EnableDMAReq_TX(USART3);
     LL_USART_Enable(USART3);
+}
+
+void set_uart_input_dev(uint32_t dev)
+{
+    if (dev == S2D_FILE_UART_DMA)
+    {
+        LL_USART_DisableIT_RXNE(USART3);
+        LL_USART_EnableDMAReq_RX(USART3);
+//        LL_USART_DisableDMAReq_TX(USART3);
+    }
+    else // if (dev == S2D_FILE_UART_IRQ)
+    {
+        LL_USART_DisableDMAReq_RX(USART3);
+        LL_USART_EnableIT_RXNE(USART3);
+//        LL_USART_DisableDMAReq_TX(USART3);
+    }
 }
 
 void get_file_handle(TaskHandle_t* handle)
@@ -67,8 +98,6 @@ void USART3_IRQHandler(void)
     if (LL_USART_IsActiveFlag_RXNE(USART3) && LL_USART_IsEnabledIT_RXNE(USART3))
     {
         char rx_data = LL_USART_ReceiveData8(USART3);
-
-        if (rx_data == '\\')
-            xTaskResumeFromISR(*s2d_file_handle);
+        uart_notify_s2d_file(rx_data);
     }
 }

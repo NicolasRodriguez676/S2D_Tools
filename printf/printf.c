@@ -44,14 +44,14 @@
 #endif
 
 
-// 'ntoa' conversion buffer size, this must be big enough to hold one converted
+// 'ntoa' conversion data_buffer size, this must be big enough to hold one converted
 // numeric number including padded zeros (dynamically created on stack)
 // default: 32 byte
 #ifndef PRINTF_NTOA_BUFFER_SIZE
 #define PRINTF_NTOA_BUFFER_SIZE    32U
 #endif
 
-// 'ftoa' conversion buffer size, this must be big enough to hold one converted
+// 'ftoa' conversion data_buffer size, this must be big enough to hold one converted
 // float number including padded zeros (dynamically created on stack)
 // default: 32 byte
 #ifndef PRINTF_FTOA_BUFFER_SIZE
@@ -122,14 +122,14 @@
 typedef void (*out_fct_type)(char character, void* buffer, size_t idx, size_t maxlen);
 
 
-// wrapper (used as buffer) for output function type
+// wrapper (used as data_buffer) for output function type
 typedef struct {
   void  (*fct)(char character, void* arg);
   void* arg;
 } out_fct_wrap_type;
 
 
-// internal buffer output
+// internal data_buffer output
 static inline void _out_buffer(char character, void* buffer, size_t idx, size_t maxlen)
 {
   if (idx < maxlen) {
@@ -160,7 +160,7 @@ static inline void _out_fct(char character, void* buffer, size_t idx, size_t max
 {
   (void)idx; (void)maxlen;
   if (character) {
-    // buffer is the output fct pointer
+    // data_buffer is the output fct pointer
     ((out_fct_wrap_type*)buffer)->fct(character, ((out_fct_wrap_type*)buffer)->arg);
   }
 }

@@ -15,7 +15,7 @@ enum S2D_Buffer_Len_Min
 {
     // number of bytes for newline + ansi color = 8
     // s2d tag = 5
-    BUF_MIN_LEN = 13
+    BUF_MIN_LEN = 6
 };
 
 // Public Internal Definitions
@@ -23,7 +23,15 @@ s2d_out_s s2dout;
 
 // Private Internal Definitions
 static int32_t g_s2d_log_level_internal;
-static const char* g_s2d_log_level_color[5] = { "\n\x1b[31m", "\n\x1b[33m", "\n\x1b[35m", "\n\x1b[32m", "\n\x1b[36m" };
+//static const char* g_s2d_log_level_color[5] = { "\x1b[31m", "\x1b[33m", "\x1b[35m", "\x1b[32m", "\x1b[36m" };
+
+static const uint8_t g_s2d_log_level_color[5][5] = {
+        {0x1b,0x5b,0x33,0x31,0x6d},
+        {0x1b,0x5b,0x33,0x33,0x6d},
+        {0x1b,0x5b,0x33,0x35,0x6d},
+        {0x1b,0x5b,0x33,0x32,0x6d},
+        {0x1b,0x5b,0x33,0x36,0x6d}
+};
 
 void s2d_init_log()
 {
@@ -109,7 +117,7 @@ void s2d_log(uint32_t level, ...)
 
         if (((int32_t)bytes_in_temp_buf < 0) || (bytes_in_temp_buf >= S2D_LOG_BUFFER_TEMP_SIZE))
         {
-            const char* msg = "%sS2D: Log message longer than temp buffer or invalid snprintf input.";
+            const char* msg = "%sLog message longer than temp data_buffer or invalid snprintf input.\n";
             s2dout.length = snprintf((char *) s2dout.buffer, S2D_LOG_HALF_BUFFER_SIZE - s2dout.length, msg, g_s2d_log_level_color[S2D_LOG_ERROR]);
 
             xTaskNotifyGive(s2dout.log_out_handle);
@@ -120,11 +128,14 @@ void s2d_log(uint32_t level, ...)
 
         if ((bytes_in_temp_buf + BUF_MIN_LEN) <= (S2D_LOG_HALF_BUFFER_SIZE - s2dout.length))
         {
-            s2dout.length += snprintf((char *) s2dout.buffer + s2dout.length, S2D_LOG_HALF_BUFFER_SIZE - s2dout.length, "%sS2D: ", g_s2d_log_level_color[level]);
+            memcpy(s2dout.buffer + s2dout.length, g_s2d_log_level_color[level], 5);
+            s2dout.length += 5;
 
             memcpy(s2dout.buffer + s2dout.length, s2dout.buffer_temp, bytes_in_temp_buf);
-
             s2dout.length += bytes_in_temp_buf;
+
+            memcpy(s2dout.buffer + s2dout.length, "\n", 1);
+            s2dout.length += 1;
 
             if (s2dout.length >= (S2D_LOG_HALF_BUFFER_SIZE - (S2D_LOG_BUFFER_TEMP_SIZE + BUF_MIN_LEN)))
                 xTaskNotifyGive(s2dout.log_out_handle);
