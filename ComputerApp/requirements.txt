@@ -1,0 +1,5 @@
+setuptools~=60.2.0
+pyserial~=3.5
+numpy~=1.23.2
+python-statemachine~=0.8.0
+dearpygui~=1.6.2
