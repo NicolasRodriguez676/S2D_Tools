@@ -3,7 +3,7 @@
 
 #include "S2D_Log.h"
 
-extern s2d_out_s s2dout;
+extern s2d_out_s s2d_out;
 
 
 // DMA is used in double buffered mode
@@ -12,7 +12,7 @@ extern s2d_out_s s2dout;
 // S2D_LOG_OUT_TASK_WAIT -> wait for possible logs in selected data_buffer.
 // can be ended early if selected data_buffer is almost full
 // check if DMA is still busy from previous s2d_start
-// take control of s2dout
+// take control of s2d_out
 // if DMA is busy, wait maximum amount of time (data_buffer size * (1/baud rate) * 10)
 // s2d_start DMA and set it to busy
 // swap buffers
@@ -33,30 +33,30 @@ void logs_out()
             continue;
         }
 
-        xSemaphoreTake(s2dout.semaphore, portMAX_DELAY);
+        xSemaphoreTake(s2d_out.semaphore, portMAX_DELAY);
 
-        if (s2dout.length > 0)
+        if (s2d_out.length > 0)
         {
             if (dma_busy == true)
                 xTaskNotifyWait(0, 0, &notify_value, pdMS_TO_TICKS(S2D_LOG_DMA_BUSY_WAIT));
 
-            S2D_LOG_DMA_START(s2dout.length);
+            S2D_LOG_DMA_START(s2d_out.length);
             dma_busy = true;
 
-            if (s2dout.buffer_select == S2D_BUFFER_TWO)
+            if (s2d_out.buffer_select == S2D_BUFFER_TWO)
             {
-                s2dout.buffer = s2dout.buffer_one;
-                s2dout.buffer_select = S2D_BUFFER_ONE;
+                s2d_out.buffer = s2d_out.buffer_one;
+                s2d_out.buffer_select = S2D_BUFFER_ONE;
             }
             else
             {
-                s2dout.buffer = s2dout.buffer_two;
-                s2dout.buffer_select = S2D_BUFFER_TWO;
+                s2d_out.buffer = s2d_out.buffer_two;
+                s2d_out.buffer_select = S2D_BUFFER_TWO;
             }
 
-            s2dout.length = 0;
+            s2d_out.length = 0;
         }
 
-        xSemaphoreGive(s2dout.semaphore);
+        xSemaphoreGive(s2d_out.semaphore);
     }
 }

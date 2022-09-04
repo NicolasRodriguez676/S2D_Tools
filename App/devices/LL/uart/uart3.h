@@ -6,6 +6,6 @@
 
 void init_uart3(uint32_t baud_rate);
 void set_uart_input_dev(uint32_t dev);
-void get_file_handle(TaskHandle_t* handle);
+void send_byte(uint8_t d);
 
 #endif //APP_S2D_TOOLS_UART3_H

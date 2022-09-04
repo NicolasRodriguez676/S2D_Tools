@@ -8,8 +8,56 @@
 #include "S2D_File_Transfer/Files_Out_Task/Files_Out.h"
 #include "S2D_File_Transfer/Files/Files.h"
 
+#ifndef S2D_FILE_DMA_INIT_TX
+#error "[S2D FILE] Missing DMA INIT TX definition."
+#endif
+
+#ifndef S2D_FILE_DMA_START_TX
+#error "[S2D FILE] Missing DMA START TX definition."
+#endif
+
+#ifndef S2D_FILE_DMA_SET_BUF_TX
+#error "[S2D FILE] Missing DMA SET TX BUFFER definition."
+#endif
+
+#ifndef S2D_FILE_DMA_INIT_RX
+#error "[S2D FILE] Missing DMA INIT RX definition."
+#endif
+
+#ifndef S2D_FILE_DMA_START_RX
+#error "[S2D FILE] Missing DMA START RX definition."
+#endif
+
+#ifndef S2D_FILE_DMA_STOP_RX
+#error "[S2D FILE] Missing DMA STOP RX definition."
+#endif
+
+#ifndef S2D_FILE_DMA_SET_BUF_RX
+#error "[S2D FILE] Missing DMA SET RX BUFFER definition."
+#endif
+
+#ifndef S2D_FILE_UART_INIT
+#error "[S2D FILE] Missing UART INIT definition."
+#endif
+
+#ifndef S2D_FILE_UART_TX_DATA
+#error "[S2D FILE] Missing UART TX DATA definition."
+#endif
+
+#ifndef S2D_FILE_UART_RX_IN_DEV
+#error "[S2D FILE] Missing UART RX INPUT DEVICE definition."
+#endif
+
+#ifndef S2D_FILE_UART_DMA
+#define S2D_FILE_UART_DMA 0
+#endif
+
+#ifndef S2D_FILE_UART_IRQ
+#define S2D_FILE_UART_IRQ 1
+#endif
+
 #ifndef S2D_FILE_UART_BAUD_RATE
-#define S2D_FILE_UART_BAUD_RATE  115200
+#define S2D_FILE_UART_BAUD_RATE 115200
 #endif
 
 #ifndef S2D_FILE_DATA_BUFFER_LENGTH
@@ -44,6 +92,20 @@
 #define S2D_FILE_ACK_DATA 'A'
 #endif
 
+#ifdef S2D_DISABLE_FILE
+#define S2D_FILE_INIT(t)                 {}
+#define S2D_FILE_INIT_PACKET(p)          {}
+#define S2D_LOG_DMA_NOTIFY_FROM_ISR()    {}
+#define S2D_FILE_UART_NOTIFY_FROM_ISR(d) {}
+#define S2D_FILE_RESUME_FROM_WORKER()    {}
+#else
+#define S2D_FILE_INIT(t)                 s2d_init_file(t)
+#define S2D_FILE_INIT_PACKET(p)          s2d_init_packet(p)
+#define S2D_FILE_DMA_NOTIFY_FROM_ISR()   s2d_file_dma_notify_from_isr()
+#define S2D_FILE_UART_NOTIFY_FROM_ISR(d) s2d_file_uart_notify_from_isr(d)
+#define S2D_FILE_RESUME_FROM_WORKER()    s2d_file_resume_from_worker()
+#endif
+
 enum Packet_Sizes {
     HEADER_LENGTH = 2,
     HEADER_SIZE = HEADER_LENGTH/2 * sizeof(uint32_t) + HEADER_LENGTH/2 * sizeof(float),
@@ -74,7 +136,7 @@ typedef struct S2D_File {
     uint32_t state;
 
     TaskHandle_t handle;
-    TaskHandle_t* rt_handle;
+    TaskHandle_t* worker_handle;
     SemaphoreHandle_t semaphore;
 
 } s2d_file_s;

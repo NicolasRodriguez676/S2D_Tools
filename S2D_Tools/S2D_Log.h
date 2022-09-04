@@ -10,31 +10,39 @@
 #include "S2D_Logger/Log_Out_Task/Logs_Out.h"
 #include "S2D_Logger/Logger/Logger.h"
 
-#ifndef S2D_LOG_OUT_TASK_HANDLE
-#error "Error: Missing GIVE TASK HANDLE definition."
+#ifndef S2D_LOG_DMA_INIT
+#error "[S2D LOG] Missing DMA INIT defintion."
 #endif
 
-#if !defined S2D_LOG_DMA_INIT && !defined S2D_LOG_DMA_START
-#error "Error: Missing DMA init and start defintions."
+#ifndef S2D_LOG_DMA_START
+#error "[S2D LOG] Missing DMA START defintion."
 #endif
 
 #ifndef S2D_LOG_UART_INIT
-#error "Error: Missing UART init definition."
+#error "[S2D LOG] Missing UART INIT definition."
 #endif
 
 #ifndef S2D_DISABLE_TIME_LOGGING
-#if !defined S2D_TIMER_INIT
-#error "Error: Missing TIMER init defintion."
+#ifndef S2D_TIMER_INIT
+#error "[S2D LOG] Missing TIMER INIT defintion."
 #endif
 
-#if !defined S2D_GET_COUNT && !defined S2D_RESET_COUNT
-#error "Error: Missing GET COUNT and RESET COUNT defintions."
+#ifndef S2D_GET_COUNT
+#error "[S2D LOG] Missing GET COUNT defintion."
 #endif
 
-#if !defined S2D_ENABLE_COUNT && !defined S2D_DISABLE_COUNT
-#error "Error: Missing ENABLE COUNT and DISABLE COUNT defintions."
+#ifndef S2D_RESET_COUNT
+#error "[S2D LOG] Missing RESET COUNT defintion."
 #endif
+
+#ifndef S2D_ENABLE_COUNT
+#error "[S2D LOG] Missing ENABLE COUNT defintion."
 #endif
+
+#ifndef S2D_DISABLE_COUNT
+#error "[S2D LOG] Missing DISABLE COUNT defintions."
+#endif
+#endif // ifndef S2D_DISABLE_TIME_LOGGING
 
 #define S2D_LOG_NONE     -1
 #define S2D_LOG_INFO      4
@@ -77,6 +85,12 @@
 #error "Error: Busy wait time calculated internally!"
 #else
 #define S2D_LOG_DMA_BUSY_WAIT (uint32_t)(S2D_LOG_HALF_BUFFER_SIZE)*((1/(float)S2D_LOG_UART_BAUD_RATE)*(10))
+#endif
+
+#ifdef S2D_DISABLE_LOG
+#define S2D_LOG_DMA_NOTIFY_FROM_ISR {}
+#else
+#define S2D_LOG_DMA_NOTIFY_FROM_ISR() s2d_log_dma_notify_from_isr()
 #endif
 
 #ifdef S2D_DISABLE_LOG
@@ -131,7 +145,7 @@ typedef struct S2D_Buffer_Out {
 
     uint8_t buffer_temp[S2D_LOG_BUFFER_TEMP_SIZE];
 
-    TaskHandle_t log_out_handle;
+    TaskHandle_t handle;
     SemaphoreHandle_t semaphore;
 
 } s2d_out_s;

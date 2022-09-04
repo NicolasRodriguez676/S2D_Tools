@@ -72,32 +72,31 @@ void init_uart3(uint32_t baud_rate)
     LL_USART_Enable(USART3);
 }
 
+// TODO: Split into two macros/functions
 void set_uart_input_dev(uint32_t dev)
 {
     if (dev == S2D_FILE_UART_DMA)
     {
         LL_USART_DisableIT_RXNE(USART3);
         LL_USART_EnableDMAReq_RX(USART3);
-//        LL_USART_DisableDMAReq_TX(USART3);
     }
     else // if (dev == S2D_FILE_UART_IRQ)
     {
         LL_USART_DisableDMAReq_RX(USART3);
         LL_USART_EnableIT_RXNE(USART3);
-//        LL_USART_DisableDMAReq_TX(USART3);
     }
 }
 
-void get_file_handle(TaskHandle_t* handle)
+void send_byte(uint8_t d)
 {
-    s2d_file_handle = handle;
+    LL_USART_TransmitData8(USART3, d);
 }
 
 void USART3_IRQHandler(void)
 {
     if (LL_USART_IsActiveFlag_RXNE(USART3) && LL_USART_IsEnabledIT_RXNE(USART3))
     {
-        char rx_data = LL_USART_ReceiveData8(USART3);
-        uart_notify_s2d_file(rx_data);
+        uint8_t rx_data = LL_USART_ReceiveData8(USART3);
+        S2D_FILE_UART_NOTIFY_FROM_ISR(rx_data);
     }
 }

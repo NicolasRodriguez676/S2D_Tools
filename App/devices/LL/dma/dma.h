@@ -17,6 +17,6 @@ void set_dma_rx_buf(uint8_t* buffer);
 
 void init_dma1s7(uint8_t* buffer_one, uint8_t* buffer_two);
 void start_dma1s7(uint32_t buffer_length);
-void get_log_handle(TaskHandle_t* handle);
+void retrieve_log_handle(TaskHandle_t* handle);
 
 #endif //APP_DMA_H

@@ -15,7 +15,6 @@
 
 #include "blinky/blinky.h"
 
-extern TaskHandle_t* s2d_file_handle;
 TaskHandle_t data_task;
 
 void get_data();
@@ -34,7 +33,7 @@ int main(void)
     xTaskCreate(blinky, "blinky", configMINIMAL_STACK_SIZE * 4, NULL, tskIDLE_PRIORITY + 1, NULL);
     xTaskCreate(get_data, "get_data", configMINIMAL_STACK_SIZE * 8, NULL, tskIDLE_PRIORITY + 1, &data_task);
 
-    s2d_init_file(&data_task);
+    S2D_FILE_INIT(&data_task);
 
     vTaskStartScheduler();
 
@@ -48,7 +47,7 @@ void get_data()
     uint32_t notify_value;
 
     s2d_data_packet_s packet;
-    s2d_init_packet(&packet);
+    S2D_FILE_INIT_PACKET(&packet);
 
     S2D_DEBUG("packet_size=\"%d\"", PACKET_SIZE);
     S2D_DEBUG("header_size=\"%d\"", HEADER_SIZE);
@@ -76,7 +75,7 @@ void get_data()
                     packet.data[i] = arm_sin_f32(2 * PI * ((float) i / (float) 128));
             }
 
-            vTaskResume(*s2d_file_handle);
+            S2D_FILE_RESUME_FROM_WORKER();
         }
     }
 }

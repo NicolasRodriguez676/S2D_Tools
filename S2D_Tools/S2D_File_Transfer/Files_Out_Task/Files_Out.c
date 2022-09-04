@@ -62,7 +62,7 @@ void files_out()
 
         // Notify Registered Task to fill file with data
         S2D_DEBUG("Notify registered task to fill data");
-        xTaskNotify(*s2d_file.rt_handle, S2D_FILE_RT_FLAG, eSetBits);
+        xTaskNotify(*s2d_file.worker_handle, S2D_FILE_RT_FLAG, eSetBits);
 
         // Wait for file to be filled
         S2D_DEBUG("Suspending...");
@@ -102,18 +102,4 @@ void files_out()
         suspend_task:
         vTaskSuspend(NULL);
     }
-}
-
-void dma_notify_s2d_file()
-{
-    if (s2d_file.state == RECEIVING)
-        xTaskNotifyFromISR(s2d_file.handle, S2D_FILE_ACK_FLAG, eSetBits, NULL);
-}
-
-void uart_notify_s2d_file(char data)
-{
-    if (s2d_file.state == WAITING && data == S2D_FILE_BEGIN_TRANSFER)
-        xTaskResumeFromISR(s2d_file.handle);
-    else if (s2d_file.state == ACTIVE && data == S2D_FILE_ACK_DATA)
-        xTaskNotifyFromISR(s2d_file.handle, S2D_FILE_ACK_FLAG, eSetBits, NULL);
 }

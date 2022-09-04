@@ -29,3 +29,25 @@ void init_timer2()
     LL_TIM_SetTriggerOutput(TIM2, LL_TIM_TRGO_ENABLE);
 
 }
+
+uint32_t get_counter_value()
+{
+    return LL_TIM_GetCounter(TIM2);
+}
+
+void enable_counter()
+{
+    LL_TIM_EnableCounter(TIM2);
+}
+
+void disable_counter()
+{
+    LL_TIM_DisableCounter(TIM2);
+}
+
+void set_counter_zero()
+{
+    LL_TIM_WriteReg(TIM2, CNT, 0);
+}
+
+

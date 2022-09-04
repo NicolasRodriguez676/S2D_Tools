@@ -10,8 +10,6 @@
 #include "dma.h"
 
 
-static TaskHandle_t* s2d_log_handle;
-
 // DMA1 STREAM1 (FILE_RX) *******************************************************************
 
 void init_dma1s1()
@@ -42,7 +40,7 @@ void DMA1_Stream1_IRQHandler()
     LL_DMA_ClearFlag_TC1(DMA1);
     LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_1);
 
-    dma_notify_s2d_file();
+    S2D_FILE_DMA_NOTIFY_FROM_ISR();
 }
 
 // DMA1 STREAM3 (FILE_TX) *******************************************************************
@@ -110,11 +108,5 @@ void DMA1_Stream7_IRQHandler()
     LL_DMA_ClearFlag_TC7(DMA1);
     LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_7);
 
-    uint32_t prev_notify;
-    xTaskGenericNotifyFromISR(*s2d_log_handle, S2D_LOG_NOTIFY_DMA_BUSY_FLAG, eSetBits, &prev_notify, NULL);
-}
-
-void get_log_handle(TaskHandle_t* handle)
-{
-    s2d_log_handle = handle;
+    S2D_LOG_DMA_NOTIFY_FROM_ISR();
 }
